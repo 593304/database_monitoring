@@ -11,3 +11,18 @@ Already implemented functionalities:
   - Checking the sensors connection
     - At 50% of the timeout trying to restart the bluetooth service
     - After the timeout reached sending an e-mail
+
+## Update 1
+
+Refactored code
+
+Database schema for the script:
+```SQL
+CREATE TABLE monitoring.email_alert_sent (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(128),
+    type VARCHAR(128),
+    valid BOOL,
+    timestamp TIMESTAMP
+)
+```
