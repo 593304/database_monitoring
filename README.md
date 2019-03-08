@@ -14,7 +14,7 @@ Already implemented functionalities:
 
 ## Update 1
 
-Refactored code
+Refactored code and added Sensors class for value checking.
 
 Database schema for the script:
 ```SQL
@@ -26,3 +26,14 @@ CREATE TABLE monitoring.email_alert_sent (
     timestamp TIMESTAMP
 )
 ```
+
+Already implemented functionalities:
+  - E-mail sending
+  - Checking the database connection
+    - At 50% of the timeout trying to restart the service
+    - After the timeout reached sending an e-mail
+  - Checking the sensors connection
+    - At 50% of the timeout trying to restart the bluetooth service
+    - After the timeout reached sending an e-mail
+  - Checking the sensors values
+    - Battery level
