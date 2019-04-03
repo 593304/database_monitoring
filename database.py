@@ -91,7 +91,7 @@ class Database:
     def get_sensor_battery_status(self, sensor):
         command = 'SELECT battery_percent FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
         self.cursor.execute(command, [sensor])
-        result = self.cursor.fetchall()
+        result = self.cursor.fetchone()
 
         return result[0]
 

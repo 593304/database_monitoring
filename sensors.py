@@ -34,8 +34,11 @@ class Sensors:
                 name = self.heartbeats[sensor]['name']
                 if level_warning < battery_level:
                     self.logger.debug('{0}({1})s battery level is ok'.format(sensor, name))
+                    email_notification = self.database.get_email_alert_notification(sensor, self.battery_critical)
+                    if email_notification:
+                        self.database.set_email_alert_notification(sensor, self.battery_critical)
                 if level_error < battery_level <= level_warning:
-                    self.logger.info('{0}({1})s battery level is under {2}%'.format(sensor, name, level_warning))
+                    self.logger.warning('{0}({1})s battery level is under {2}%'.format(sensor, name, level_warning))
                     email_notification = self.database.get_email_alert_notification(sensor, self.battery_warning)
                     if email_notification:
                         self.logger.debug('E-mail notification already sent')
@@ -47,7 +50,7 @@ class Sensors:
                         )
                         self.database.set_email_alert_notification(sensor, self.battery_warning)
                 if level_critical < battery_level <= level_error:
-                    self.logger.warning('{0}({1})s battery level is under {2}%'.format(sensor, name, level_error))
+                    self.logger.error('{0}({1})s battery level is under {2}%'.format(sensor, name, level_error))
                     email_notification = self.database.get_email_alert_notification(sensor, self.battery_error)
                     if email_notification:
                         self.logger.debug('E-mail notification already sent')
@@ -57,9 +60,21 @@ class Sensors:
                             self.get_mail_subject_battery(self.battery_error),
                             self.get_mail_message_battery(sensor, name, battery_level)
                         )
+                        self.database.set_email_alert_notification(sensor, self.battery_warning)
                         self.database.set_email_alert_notification(sensor, self.battery_error)
                 if battery_level <= level_critical:
-                    self.logger.error('{0}({1})s battery level is under {2}%'.format(sensor, name, level_critical))
+                    self.logger.critical('{0}({1})s battery level is under {2}%'.format(sensor, name, level_critical))
+                    email_notification = self.database.get_email_alert_notification(sensor, self.battery_critical)
+                    if email_notification:
+                        self.logger.debug('E-mail notification already sent')
+                    else:
+                        self.logger.info('E-mail notification needed')
+                        self.send_mail.send(
+                            self.get_mail_subject_battery(self.battery_critical),
+                            self.get_mail_message_battery(sensor, name, battery_level)
+                        )
+                        self.database.set_email_alert_notification(sensor, self.battery_error)
+                        self.database.set_email_alert_notification(sensor, self.battery_critical)
 
     def get_mail_subject_battery(self, level):
         return {

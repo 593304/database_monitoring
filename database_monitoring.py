@@ -38,6 +38,7 @@ def main():
         heartbeats = heartbeat.heartbeats
         # ToDo: check battery, temp, humidity
         sensors = Sensors(CONFIG, DATABASE, SENDMAIL, heartbeats)
+        sensors.check_battery_status()
 
     DATABASE.close()
 

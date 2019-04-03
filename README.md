@@ -37,3 +37,18 @@ Already implemented functionalities:
     - After the timeout reached sending an e-mail
   - Checking the sensors values
     - Battery level
+
+## Update 2
+
+Finished battery status checking and added fully working e-mail notifications
+
+Already implemented functionalities:
+  - E-mail sending
+  - Checking the database connection
+    - At 50% of the timeout trying to restart the service
+    - After the timeout reached sending an e-mail
+  - Checking the sensors connection
+    - At 50% of the timeout trying to restart the bluetooth service
+    - After the timeout reached sending an e-mail
+  - Checking the sensors values
+    - Battery level and sending e-mail if necessary
