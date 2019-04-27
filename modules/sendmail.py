@@ -8,16 +8,23 @@ from email.mime.multipart import MIMEMultipart
 
 
 class SendMail:
+    config_group_gmail = 'GMAIL'
+    server = 'SERVER'
+    port = 'PORT'
+    password = 'PASSWORD'
+    from_address = 'FROM_ADDRESS'
+    to_address = 'TO_ADDRESS'
+
     def __init__(self, config):
         self.config = config
         self.logger = logging.getLogger('SendMail')
 
     def send(self, subject, message_body):
-        server = self.config.get('GMAIL', 'SERVER')
-        port = self.config.get('GMAIL', 'PORT')
-        password = self.config.get('GMAIL', 'PASSWORD')
-        from_address = self.config.get('GMAIL', 'FROM_ADDRESS')
-        to_address = self.config.get('GMAIL', 'TO_ADDRESS')
+        server = self.config.get(self.config_group_gmail, self.server)
+        port = self.config.get(self.config_group_gmail, self.port)
+        password = self.config.get(self.config_group_gmail, self.password)
+        from_address = self.config.get(self.config_group_gmail, self.from_address)
+        to_address = self.config.get(self.config_group_gmail, self.to_address)
 
         # Mail settings
         message = MIMEMultipart('html')

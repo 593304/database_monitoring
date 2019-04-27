@@ -69,3 +69,25 @@ Already implemented functionality:
     - Battery level and sending e-mail if necessary
     - Temperature level and sending e-mail if necessary
     - Humidity level and sending e-mail if necessary
+
+## Update 4
+
+Added RPI system status checking with fully working e-mail notifications
+
+Already implemented functionality:
+  - E-mail sending
+  - Checking the database connection
+    - At 50% of the timeout trying to restart the service
+    - After the timeout reached sending an e-mail
+  - Checking the sensors connection
+    - At 50% of the timeout trying to restart the bluetooth service
+    - After the timeout reached sending an e-mail
+  - Checking the sensors values
+    - Battery level and sending e-mail if necessary
+    - Temperature level and sending e-mail if necessary
+    - Humidity level and sending e-mail if necessary
+  - Checking RPI system values
+    - CPU temperature, usage and sending e-mail if necessary
+    - Memory usage and sending e-mail if necessary
+    - SD card usage and sending e-mail if necessary
+    - External HDDs partitions usage and sending e-mail if necessary

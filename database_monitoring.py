@@ -2,7 +2,7 @@
 
 import configparser
 import logging
-import os
+import time
 
 from modules.database import Database
 from modules.sendmail import SendMail
@@ -10,7 +10,7 @@ from modules.sensor_heartbeat import SensorHeartbeat
 from modules.sensors import Sensors
 from modules.system_heartbeat import SystemHeartbeat
 
-CONFIG_FILE = os.path.realpath('.') + '/config/database_monitoring.conf'
+CONFIG_FILE = '/mnt/dev/monitoring/Database_monitoring/config/database_monitoring.conf'
 
 CONFIG = None
 LOGGER = None
@@ -44,12 +44,18 @@ def main():
         sensors.check_humidity_status()
 
     system_heartbeat = SystemHeartbeat(CONFIG, DATABASE, SENDMAIL)
+    system_heartbeat.check_cpu()
+    system_heartbeat.check_memory()
+    system_heartbeat.check_sd_card()
+    system_heartbeat.check_dev_partition()
+    system_heartbeat.check_cloud_partition()
+    system_heartbeat.check_nas_partition()
 
     DATABASE.close()
 
 
 if __name__ == '__main__':
-    # time.sleep(45)
+    time.sleep(45)
     init()
 
     SENDMAIL = SendMail(CONFIG)

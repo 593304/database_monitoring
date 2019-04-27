@@ -6,6 +6,10 @@ from datetime import datetime
 
 
 class Sensors:
+    config_group_battery = 'BATTERY_LEVELS'
+    config_group_temperature = 'TEMPERATURE_LEVELS'
+    config_group_humidity = 'HUMIDITY_LEVELS'
+    config_group_subjects = 'SUBJECTS'
     battery_warning = 'BATTERY_WARNING'
     battery_error = 'BATTERY_ERROR'
     battery_critical = 'BATTERY_CRITICAL'
@@ -28,9 +32,9 @@ class Sensors:
 
     def check_battery_status(self):
         self.logger.debug('Checking sensors\' battery status ...')
-        level_warning = float(self.config.get('BATTERY_LEVELS', self.battery_warning))
-        level_error = float(self.config.get('BATTERY_LEVELS', self.battery_error))
-        level_critical = float(self.config.get('BATTERY_LEVELS', self.battery_critical))
+        level_warning = float(self.config.get(self.config_group_battery, self.battery_warning))
+        level_error = float(self.config.get(self.config_group_battery, self.battery_error))
+        level_critical = float(self.config.get(self.config_group_battery, self.battery_critical))
 
         for sensor in self.heartbeats:
             if sensor not in self.heartbeat_errors:
@@ -94,8 +98,8 @@ class Sensors:
 
     def check_temperature_status(self):
         self.logger.debug('Checking sensors\' temperature status ...')
-        level_min = float(self.config.get('TEMPERATURE_LEVELS', self.temperature_min))
-        level_max = float(self.config.get('TEMPERATURE_LEVELS', self.temperature_max))
+        level_min = float(self.config.get(self.config_group_temperature, self.temperature_min))
+        level_max = float(self.config.get(self.config_group_temperature, self.temperature_max))
 
         for sensor in self.heartbeats:
             if sensor not in self.heartbeat_errors:
@@ -118,7 +122,7 @@ class Sensors:
             self.database.set_email_alert_notification(sensor, self.temperature_max)
 
     def handle_low_temperature(self, sensor, name, temperature, level_min):
-        self.logger.warning('{0}({1})s temperature is under {2}%'.format(sensor, name, level_min))
+        self.logger.warning('{0}({1})s temperature is under {2}°C'.format(sensor, name, level_min))
         email_notification = self.database.get_email_alert_notification(sensor, self.temperature_min)
         if email_notification:
             self.logger.debug('E-mail notification already sent')
@@ -131,7 +135,7 @@ class Sensors:
             self.database.set_email_alert_notification(sensor, self.temperature_min)
 
     def handle_high_temperature(self, sensor, name, temperature, level_max):
-        self.logger.warning('{0}({1})s temperature is above {2}%'.format(sensor, name, level_max))
+        self.logger.warning('{0}({1})s temperature is above {2}°C'.format(sensor, name, level_max))
         email_notification = self.database.get_email_alert_notification(sensor, self.temperature_max)
         if email_notification:
             self.logger.debug('E-mail notification already sent')
@@ -145,8 +149,8 @@ class Sensors:
 
     def check_humidity_status(self):
         self.logger.debug('Checking sensors\' humidity status ...')
-        level_min = float(self.config.get('HUMIDITY_LEVELS', self.humidity_min))
-        level_max = float(self.config.get('HUMIDITY_LEVELS', self.humidity_max))
+        level_min = float(self.config.get(self.config_group_humidity, self.humidity_min))
+        level_max = float(self.config.get(self.config_group_humidity, self.humidity_max))
 
         for sensor in self.heartbeats:
             if sensor not in self.heartbeat_errors:
@@ -196,21 +200,21 @@ class Sensors:
 
     def get_mail_subject_battery(self, level):
         return {
-            self.battery_warning: self.config.get('SUBJECTS', self.battery_warning),
-            self.battery_error: self.config.get('SUBJECTS', self.battery_error),
-            self.battery_critical: self.config.get('SUBJECTS', self.battery_critical)
+            self.battery_warning: self.config.get(self.config_group_subjects, self.battery_warning),
+            self.battery_error: self.config.get(self.config_group_subjects, self.battery_error),
+            self.battery_critical: self.config.get(self.config_group_subjects, self.battery_critical)
         }[level]
 
     def get_mail_subject_temperature(self, level):
         return {
-            self.temperature_min: self.config.get('SUBJECTS', self.temperature_min),
-            self.temperature_max: self.config.get('SUBJECTS', self.temperature_max)
+            self.temperature_min: self.config.get(self.config_group_subjects, self.temperature_min),
+            self.temperature_max: self.config.get(self.config_group_subjects, self.temperature_max)
         }[level]
 
     def get_mail_subject_humidity(self, level):
         return {
-            self.humidity_min: self.config.get('SUBJECTS', self.humidity_min),
-            self.humidity_max: self.config.get('SUBJECTS', self.humidity_max)
+            self.humidity_min: self.config.get(self.config_group_subjects, self.humidity_min),
+            self.humidity_max: self.config.get(self.config_group_subjects, self.humidity_max)
         }[level]
 
     @staticmethod
@@ -228,7 +232,7 @@ class Sensors:
         return \
             '<html>' \
             '  <body>' \
-            '    <p>The {0}({1}) sensors temperature is {2}%</p>' \
+            '    <p>The {0}({1}) sensors temperature is {2}°C</p>' \
             '    <p>{3}</p>' \
             '  </body>' \
             '</html>'.format(sensor, sensor_name, temperature, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))

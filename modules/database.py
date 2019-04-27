@@ -8,12 +8,19 @@ from datetime import datetime
 
 
 class Database:
+    config_group_db = 'DATABASE'
+    config_group_timeouts = 'TIMEOUTS'
+    config_group_subjects = 'SUBJECTS'
+    connection_string = 'CONNECTION_STRING'
+    temp_file = 'TEMP_FILE'
+    db_connection_error = "DB_CONNECTION_ERROR"
+
     def __init__(self, config, send_mail):
         self.config = config
         self.send_mail = send_mail
         self.logger = logging.getLogger('Database')
-        self.connection_string = config.get('DATABASE', 'CONNECTION_STRING')
-        self.temp_file = os.path.realpath('.') + config.get('DATABASE', 'TEMP_FILE')
+        self.connection_string = config.get(self.config_group_db, self.connection_string)
+        self.temp_file = os.path.realpath('.') + config.get(self.config_group_db, self.temp_file)
         self.connection = None
         self.cursor = None
 
@@ -63,7 +70,7 @@ class Database:
             end_datetime = datetime.strptime(lines[number_of_lines - 1], '%Y-%m-%d %H:%M:%S')
             difference_in_minutes = int((end_datetime - start_datetime).total_seconds() / 60.0)
 
-            timeout = float(self.config.get('TIMEOUTS', 'DB_CONNECTION_ERROR'))
+            timeout = float(self.config.get(self.config_group_timeouts, self.db_connection_error))
             if int(timeout / 2) == difference_in_minutes:
                 self.logger.info('Restarting postgresql service')
                 os.system('sudo systemctl restart postgresql')
@@ -193,7 +200,7 @@ class Database:
         self.connection.close()
 
     def get_mail_subject(self):
-        self.config.get('SUBJECTS', 'DB_CONNECTION_ERROR')
+        self.config.get(self.config_group_subjects, self.db_connection_error)
 
     @staticmethod
     def get_mail_message():
@@ -210,7 +217,7 @@ class Database:
 
         message = self.get_mail_message() \
             .replace('{0}', socket.gethostname()) \
-            .replace('{1}', self.config.get('TIMEOUTS', 'DB_CONNECTION_ERROR')) \
+            .replace('{1}', self.config.get(self.config_group_timeouts, self.db_connection_error)) \
             .replace('{2}', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
         self.send_mail.send(self.get_mail_subject(), message)

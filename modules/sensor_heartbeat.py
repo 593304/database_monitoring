@@ -8,6 +8,13 @@ from datetime import datetime
 
 
 class SensorHeartbeat:
+    config_group_heartbeat = 'HEARTBEAT'
+    config_group_timeouts = 'TIMEOUTS'
+    config_group_subjects = 'SUBJECTS'
+    sensor_connection_error = 'SENSOR_CONNECTION_ERROR'
+    sensors = 'SENSORS'
+    db_connection_error = 'DB_CONNECTION_ERROR'
+
     def __init__(self, config, database, send_mail):
         self.config = config
         self.database = database
@@ -19,8 +26,8 @@ class SensorHeartbeat:
     def check_last_heartbeat(self):
         self.logger.debug('Checking sensors ...')
         heartbeats = {}
-        timeout = float(self.config.get('TIMEOUTS', 'SENSOR_CONNECTION_ERROR'))
-        for sensor in json.loads(self.config.get('HEARTBEAT', 'SENSORS')):
+        timeout = float(self.config.get(self.config_group_timeouts, self.sensor_connection_error))
+        for sensor in json.loads(self.config.get(self.config_group_heartbeat, self.sensors)):
             sensor_last_heartbeat = self.database.get_sensor_last_heartbeat(sensor)
             name = sensor_last_heartbeat[0]['name']
             timestamp = sensor_last_heartbeat[0]['timestamp']
@@ -66,7 +73,7 @@ class SensorHeartbeat:
         return True
 
     def get_mail_subject(self):
-        return self.config.get('SUBJECTS', 'SENSOR_CONNECTION_ERROR')
+        return self.config.get(self.config_group_subjects, self.sensor_connection_error)
 
     @staticmethod
     def get_mail_message():
@@ -83,7 +90,7 @@ class SensorHeartbeat:
 
         message = self.get_mail_message() \
             .replace('{0}', socket.gethostname()) \
-            .replace('{1}', self.config.get('TIMEOUTS', 'DB_CONNECTION_ERROR')) \
+            .replace('{1}', self.config.get(self.config_group_timeouts, self.db_connection_error)) \
             .replace('{2}', error_message) \
             .replace('{3}', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
