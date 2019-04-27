@@ -7,12 +7,12 @@ import socket
 from datetime import datetime
 
 
-class Heartbeat:
+class SensorHeartbeat:
     def __init__(self, config, database, send_mail):
         self.config = config
         self.database = database
         self.send_mail = send_mail
-        self.logger = logging.getLogger('Heartbeat')
+        self.logger = logging.getLogger('SensorHeartbeat')
         self.heartbeats = {}
 
     # If returns false an email will be sent
@@ -68,7 +68,8 @@ class Heartbeat:
     def get_mail_subject(self):
         return self.config.get('SUBJECTS', 'SENSOR_CONNECTION_ERROR')
 
-    def get_mail_message(self):
+    @staticmethod
+    def get_mail_message():
         return '<html>'\
                '  <body>'\
                '    <p>Couldn\'t connect to the sensor(s) on {0} in the last {1} minutes</p>'\

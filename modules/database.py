@@ -13,7 +13,7 @@ class Database:
         self.send_mail = send_mail
         self.logger = logging.getLogger('Database')
         self.connection_string = config.get('DATABASE', 'CONNECTION_STRING')
-        self.temp_file = config.get('DATABASE', 'TEMP_FILE')
+        self.temp_file = os.path.realpath('.') + config.get('DATABASE', 'TEMP_FILE')
         self.connection = None
         self.cursor = None
 
@@ -28,11 +28,11 @@ class Database:
             try:
                 os.remove(self.temp_file)
                 self.logger.debug('Removing temp file')
-            except Exception:
+            except OSError:
                 pass
 
             return True
-        except Exception:
+        except psycopg2.Error:
             self.logger.error('Cannot connect to the database')
             number_of_lines = 0
             lines = []
@@ -82,35 +82,87 @@ class Database:
                 return False
 
     def get_sensor_last_heartbeat(self, sensor):
-        command = 'SELECT * FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
+        command = 'SELECT ' \
+                  '  * ' \
+                  'FROM ' \
+                  '  monitoring.sensor_data ' \
+                  'WHERE ' \
+                  '  mac_address = %s ' \
+                  'ORDER BY ' \
+                  '  timestamp DESC ' \
+                  'LIMIT 1'
         self.cursor.execute(command, [sensor])
         result = self.cursor.fetchall()
 
         return [dict(zip([key[0] for key in self.cursor.description], result[0]))]
 
+    def get_system_last_heartbeat(self):
+        command = 'SELECT ' \
+                  '  * ' \
+                  'FROM ' \
+                  '  monitoring.rpi_data ' \
+                  'ORDER BY ' \
+                  '  timestamp DESC ' \
+                  'LIMIT 1'
+        self.cursor.execute(command)
+        result = self.cursor.fetchall()
+
+        return dict(zip([key[0] for key in self.cursor.description], result[0]))
+
     def get_sensor_battery_status(self, sensor):
-        command = 'SELECT battery_percent FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
+        command = 'SELECT ' \
+                  '  battery_percent ' \
+                  'FROM ' \
+                  '  monitoring.sensor_data ' \
+                  'WHERE ' \
+                  '  mac_address = %s ' \
+                  'ORDER BY ' \
+                  '  timestamp DESC ' \
+                  'LIMIT 1'
         self.cursor.execute(command, [sensor])
         result = self.cursor.fetchone()
 
         return result[0]
 
     def get_sensor_temperature(self, sensor):
-        command = 'SELECT room_temp_celsius FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
+        command = 'SELECT ' \
+                  '  room_temp_celsius ' \
+                  'FROM ' \
+                  '  monitoring.sensor_data ' \
+                  'WHERE ' \
+                  '  mac_address = %s ' \
+                  'ORDER BY ' \
+                  '  timestamp DESC ' \
+                  'LIMIT 1'
         self.cursor.execute(command, [sensor])
         result = self.cursor.fetchone()
 
         return result[0]
 
     def get_sensor_humidity(self, sensor):
-        command = 'SELECT room_humdity_percent FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
+        command = 'SELECT ' \
+                  '  room_humdity_percent ' \
+                  'FROM ' \
+                  '  monitoring.sensor_data ' \
+                  'WHERE ' \
+                  '  mac_address = %s ' \
+                  'ORDER BY ' \
+                  '  timestamp DESC ' \
+                  'LIMIT 1'
         self.cursor.execute(command, [sensor])
         result = self.cursor.fetchone()
 
         return result[0]
 
     def get_email_alert_notification(self, name, alert_type):
-        command = 'SELECT * FROM monitoring.email_alert_sent WHERE name = %s AND type = %s AND valid = TRUE'
+        command = 'SELECT ' \
+                  '  * ' \
+                  'FROM ' \
+                  '  monitoring.email_alert_sent ' \
+                  'WHERE ' \
+                  '  name = %s AND ' \
+                  '  type = %s AND ' \
+                  '  valid = TRUE'
         self.cursor.execute(command, [name, alert_type])
         result = self.cursor.fetchall()
 
@@ -122,9 +174,17 @@ class Database:
     def set_email_alert_notification(self, name, alert_type):
         is_exists = self.get_email_alert_notification(name, alert_type)
         if is_exists:
-            command = 'UPDATE monitoring.email_alert_sent SET valid = FALSE WHERE name = %s AND type = %s'
+            command = 'UPDATE ' \
+                      '  monitoring.email_alert_sent ' \
+                      'SET ' \
+                      '  valid = FALSE ' \
+                      'WHERE ' \
+                      '  name = %s AND ' \
+                      '  type = %s'
         else:
-            command = 'INSERT INTO monitoring.email_alert_sent(name,type,valid,timestamp) VALUES(%s,%s,True,now())'
+            command = 'INSERT INTO ' \
+                      '  monitoring.email_alert_sent(name,type,valid,timestamp) ' \
+                      'VALUES(%s,%s,True,now())'
         self.cursor.execute(command, [name, alert_type])
         self.connection.commit()
 
@@ -135,7 +195,8 @@ class Database:
     def get_mail_subject(self):
         self.config.get('SUBJECTS', 'DB_CONNECTION_ERROR')
 
-    def get_mail_message(self):
+    @staticmethod
+    def get_mail_message():
         return \
             '<html>' \
             '  <body>' \

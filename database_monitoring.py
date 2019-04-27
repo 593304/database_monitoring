@@ -2,13 +2,15 @@
 
 import configparser
 import logging
+import os
 
-from database import Database
-from heartbeat import Heartbeat
-from sendmail import SendMail
-from sensors import Sensors
+from modules.database import Database
+from modules.sendmail import SendMail
+from modules.sensor_heartbeat import SensorHeartbeat
+from modules.sensors import Sensors
+from modules.system_heartbeat import SystemHeartbeat
 
-CONFIG_FILE = '/mnt/dev/monitoring/Database_monitoring/database_monitoring.conf'
+CONFIG_FILE = os.path.realpath('.') + '/config/database_monitoring.conf'
 
 CONFIG = None
 LOGGER = None
@@ -33,13 +35,15 @@ def main():
     if not DATABASE.check_status_and_connect():
         return
 
-    heartbeat = Heartbeat(CONFIG, DATABASE, SENDMAIL)
-    if heartbeat.check_last_heartbeat():
-        heartbeats = heartbeat.heartbeats
+    sensor_heartbeat = SensorHeartbeat(CONFIG, DATABASE, SENDMAIL)
+    if sensor_heartbeat.check_last_heartbeat():
+        heartbeats = sensor_heartbeat.heartbeats
         sensors = Sensors(CONFIG, DATABASE, SENDMAIL, heartbeats)
         sensors.check_battery_status()
         sensors.check_temperature_status()
         sensors.check_humidity_status()
+
+    system_heartbeat = SystemHeartbeat(CONFIG, DATABASE, SENDMAIL)
 
     DATABASE.close()
 

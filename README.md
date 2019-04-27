@@ -3,7 +3,7 @@
 Python script for regularly checking the status of the database or the values in it. 
 After a given timeout or connection error the script will send an e-mail.
 
-Already implemented functionalities:
+Already implemented functionality:
   - E-mail sending
   - Checking the database connection
     - At 50% of the timeout trying to restart the service
@@ -27,7 +27,7 @@ CREATE TABLE monitoring.email_alert_sent (
 )
 ```
 
-Already implemented functionalities:
+Already implemented functionality:
   - E-mail sending
   - Checking the database connection
     - At 50% of the timeout trying to restart the service
@@ -42,7 +42,7 @@ Already implemented functionalities:
 
 Finished battery status checking and added fully working e-mail notifications
 
-Already implemented functionalities:
+Already implemented functionality:
   - E-mail sending
   - Checking the database connection
     - At 50% of the timeout trying to restart the service
@@ -57,7 +57,7 @@ Already implemented functionalities:
 
 Finished temperature and humidity status checking and added fully working e-mail notifications
 
-Already implemented functionalities:
+Already implemented functionality:
   - E-mail sending
   - Checking the database connection
     - At 50% of the timeout trying to restart the service

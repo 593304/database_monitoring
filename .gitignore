@@ -4,4 +4,4 @@ venv/
 
 *.iml
 
-database_monitoring.conf
+*.conf
