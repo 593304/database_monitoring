@@ -95,6 +95,20 @@ class Database:
 
         return result[0]
 
+    def get_sensor_temperature(self, sensor):
+        command = 'SELECT room_temp_celsius FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
+        self.cursor.execute(command, [sensor])
+        result = self.cursor.fetchone()
+
+        return result[0]
+
+    def get_sensor_humidity(self, sensor):
+        command = 'SELECT room_humdity_percent FROM monitoring.sensor_data WHERE mac_address = %s ORDER BY timestamp DESC LIMIT 1'
+        self.cursor.execute(command, [sensor])
+        result = self.cursor.fetchone()
+
+        return result[0]
+
     def get_email_alert_notification(self, name, alert_type):
         command = 'SELECT * FROM monitoring.email_alert_sent WHERE name = %s AND type = %s AND valid = TRUE'
         self.cursor.execute(command, [name, alert_type])
