@@ -91,3 +91,7 @@ Already implemented functionality:
     - Memory usage and sending e-mail if necessary
     - SD card usage and sending e-mail if necessary
     - External HDDs partitions usage and sending e-mail if necessary
+
+## Update 5
+
+Added cooldown rate for sensor monitoring

@@ -14,9 +14,13 @@ class Sensors:
     battery_error = 'BATTERY_ERROR'
     battery_critical = 'BATTERY_CRITICAL'
     temperature_min = 'TEMPERATURE_MIN'
+    temperature_min_cooldown = 'TEMPERATURE_MIN_COOLDOWN'
     temperature_max = 'TEMPERATURE_MAX'
+    temperature_max_cooldown = 'TEMPERATURE_MAX_COOLDOWN'
     humidity_min = 'HUMIDITY_MIN'
+    humidity_min_cooldown = 'HUMIDITY_MIN_COOLDOWN'
     humidity_max = 'HUMIDITY_MAX'
+    humidity_max_cooldown = 'HUMIDITY_MAX_COOLDOWN'
 
     def __init__(self, config, database, send_mail, heartbeats):
         self.config = config
@@ -99,26 +103,30 @@ class Sensors:
     def check_temperature_status(self):
         self.logger.debug('Checking sensors\' temperature status ...')
         level_min = float(self.config.get(self.config_group_temperature, self.temperature_min))
+        level_min_cooldown = float(self.config.get(self.config_group_temperature, self.temperature_min_cooldown))
         level_max = float(self.config.get(self.config_group_temperature, self.temperature_max))
+        level_max_cooldown = float(self.config.get(self.config_group_temperature, self.temperature_max_cooldown))
 
         for sensor in self.heartbeats:
             if sensor not in self.heartbeat_errors:
                 temperature = self.database.get_sensor_temperature(sensor)
                 name = self.heartbeats[sensor]['name']
                 if level_min < temperature < level_max:
-                    self.handle_normal_temperature(sensor, name)
+                    self.handle_normal_temperature(sensor, name, temperature, level_min_cooldown, level_max_cooldown)
                 if temperature <= level_min:
                     self.handle_low_temperature(sensor, name, temperature, level_min)
                 if level_max <= temperature:
                     self.handle_high_temperature(sensor, name, temperature, level_max)
 
-    def handle_normal_temperature(self, sensor, name):
+    def handle_normal_temperature(self, sensor, name, temperature, level_min_cooldown, level_max_cooldown):
         self.logger.debug('{0}({1})s temperature is ok'.format(sensor, name))
         email_notification = self.database.get_email_alert_notification(sensor, self.temperature_min)
-        if email_notification:
+        in_cooldown_zone = temperature <= level_min_cooldown
+        if email_notification and in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.temperature_min)
         email_notification = self.database.get_email_alert_notification(sensor, self.temperature_max)
-        if email_notification:
+        in_cooldown_zone = temperature >= level_max_cooldown
+        if email_notification and in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.temperature_max)
 
     def handle_low_temperature(self, sensor, name, temperature, level_min):
@@ -150,26 +158,30 @@ class Sensors:
     def check_humidity_status(self):
         self.logger.debug('Checking sensors\' humidity status ...')
         level_min = float(self.config.get(self.config_group_humidity, self.humidity_min))
+        level_min_cooldown = float(self.config.get(self.config_group_humidity, self.humidity_min_cooldown))
         level_max = float(self.config.get(self.config_group_humidity, self.humidity_max))
+        level_max_cooldown = float(self.config.get(self.config_group_humidity, self.humidity_max_cooldown))
 
         for sensor in self.heartbeats:
             if sensor not in self.heartbeat_errors:
                 humidity = self.database.get_sensor_humidity(sensor)
                 name = self.heartbeats[sensor]['name']
                 if level_min < humidity < level_max:
-                    self.handle_normal_humidity(sensor, name)
+                    self.handle_normal_humidity(sensor, name, humidity, level_min_cooldown, level_max_cooldown)
                 if humidity <= level_min:
                     self.handle_low_humidity(sensor, name, humidity, level_min)
                 if level_max <= humidity:
                     self.handle_high_humidity(sensor, name, humidity, level_max)
 
-    def handle_normal_humidity(self, sensor, name):
+    def handle_normal_humidity(self, sensor, name, humidity, level_min_cooldown, level_max_cooldown):
         self.logger.debug('{0}({1})s humidity is ok'.format(sensor, name))
         email_notification = self.database.get_email_alert_notification(sensor, self.humidity_min)
-        if email_notification:
+        in_cooldown_zone = humidity <= level_min_cooldown
+        if email_notification and in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.humidity_min)
         email_notification = self.database.get_email_alert_notification(sensor, self.humidity_max)
-        if email_notification:
+        in_cooldown_zone = humidity >= level_max_cooldown
+        if email_notification and in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.humidity_max)
 
     def handle_low_humidity(self, sensor, name, humidity, level_min):
