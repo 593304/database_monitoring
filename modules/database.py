@@ -20,7 +20,7 @@ class Database:
         self.send_mail = send_mail
         self.logger = logging.getLogger('Database')
         self.connection_string = config.get(self.config_group_db, self.connection_string)
-        self.temp_file = os.path.realpath('.') + config.get(self.config_group_db, self.temp_file)
+        self.temp_file = config.get(self.config_group_db, self.temp_file)
         self.connection = None
         self.cursor = None
 
