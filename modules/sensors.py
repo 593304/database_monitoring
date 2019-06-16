@@ -122,11 +122,11 @@ class Sensors:
         self.logger.debug('{0}({1})s temperature is ok'.format(sensor, name))
         email_notification = self.database.get_email_alert_notification(sensor, self.temperature_min)
         in_cooldown_zone = temperature <= level_min_cooldown
-        if email_notification and in_cooldown_zone:
+        if email_notification and not in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.temperature_min)
         email_notification = self.database.get_email_alert_notification(sensor, self.temperature_max)
         in_cooldown_zone = temperature >= level_max_cooldown
-        if email_notification and in_cooldown_zone:
+        if email_notification and not in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.temperature_max)
 
     def handle_low_temperature(self, sensor, name, temperature, level_min):
@@ -177,11 +177,11 @@ class Sensors:
         self.logger.debug('{0}({1})s humidity is ok'.format(sensor, name))
         email_notification = self.database.get_email_alert_notification(sensor, self.humidity_min)
         in_cooldown_zone = humidity <= level_min_cooldown
-        if email_notification and in_cooldown_zone:
+        if email_notification and not in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.humidity_min)
         email_notification = self.database.get_email_alert_notification(sensor, self.humidity_max)
         in_cooldown_zone = humidity >= level_max_cooldown
-        if email_notification and in_cooldown_zone:
+        if email_notification and not in_cooldown_zone:
             self.database.set_email_alert_notification(sensor, self.humidity_max)
 
     def handle_low_humidity(self, sensor, name, humidity, level_min):
